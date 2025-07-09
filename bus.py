@@ -46,8 +46,11 @@ def create_pkpass_bundle(json_filename, pkpass_filename, common_images):
         os.chdir(temp_dir)
         
         # Comando zip: -r (recursivo), -j (junk paths - no guardar directorios), --exclude para evitar .DS_Store
-        zip_command = ["zip", "-r", os.path.join(current_cwd, pkpass_filename)]
-        zip_command.extend(["pass.json"] + [img for img in common_images if os.path.exists(os.path.join(current_cwd, img))]) # Asegurarse que solo incluimos las que existen
+        # Incluimos solo los archivos que sabemos que deben estar ahí o que copiamos
+        zip_command = ["zip", "-j", "-r", os.path.join(current_cwd, pkpass_filename), "pass.json"]
+        for img in common_images:
+            if os.path.exists(img): # Comprobar si la imagen existe en el temp_dir
+                zip_command.append(img)
         
         # Ejecutar el comando zip
         result = subprocess.run(zip_command, capture_output=True, text=True)
@@ -66,30 +69,31 @@ def create_pkpass_bundle(json_filename, pkpass_filename, common_images):
         print(f"Ocurrió un error inesperado al empaquetar el .pkpass: {e}")
     finally:
         # Limpiar el directorio temporal y el JSON original (ya movido o copiado)
+        # Mover el JSON de vuelta al directorio original si fue movido
         if os.path.exists(os.path.join(temp_dir, "pass.json")):
-            os.remove(os.path.join(temp_dir, "pass.json"))
+            os.remove(os.path.join(temp_dir, "pass.json")) # Ya se movió o renombró
         for img in common_images:
             if os.path.exists(os.path.join(temp_dir, img)):
                 os.remove(os.path.join(temp_dir, img))
         if os.path.exists(temp_dir):
             os.rmdir(temp_dir)
-        # Si el JSON original se movió, puede que necesitemos recrearlo o copiarlo de vuelta si se usará el mismo nombre
-        # En este script, cada JSON tiene un nombre único, así que no es problema.
 
 
 def main():
     print("--- Generador de JSON y PKPASS para Pases de Autobús ---")
     print("")
 
+    # --- Datos de la Empresa ---
+    company_name = ask_input("Nombre de la Empresa de Transporte", "TURBUS SA")
+
     # --- Datos Comunes a Todos los Pases ---
-    print("--- Datos Generales del Viaje ---")
+    print("\n--- Datos Generales del Viaje ---")
     origin = ask_input("Origen del viaje (ej: Arica (Chile))", "Arica (Chile)")
     destination = ask_input("Destino del viaje (ej: Tacna (Perú))", "Tacna (Perú)")
     
-    # Fecha y hora por defecto: 21 de septiembre de 2025 a las 18:15
-    # Usamos datetime.now() para la fecha actual, y ajustamos para el ejemplo
+    # Fecha y hora por defecto: 10 días en el futuro desde hoy
     current_date = datetime.now()
-    default_travel_date_time = (current_date + timedelta(days=10)).strftime("%d %b %Y %H:%M") # 10 días en el futuro
+    default_travel_date_time = (current_date + timedelta(days=10)).strftime("%d %b %Y %H:%M")
     travel_date_time = ask_date_time("Fecha y hora del viaje", default_travel_date_time)
     
     platform = ask_input("Número de Andén/Plataforma", "12")
@@ -126,8 +130,8 @@ def main():
           "passTypeIdentifier": "pass.com.ejemplo.bus", 
           "serialNumber": serial_number,
           "teamIdentifier": "ABCDE12345",
-          "organizationName": "Empresa de transportes TURBUS SA",
-          "logoText": "TURBUS SA",
+          "organizationName": company_name, # Usar la variable company_name
+          "logoText": company_name,          # Usar la variable company_name
           "foregroundColor": "rgb(255, 255, 255)",
           "backgroundColor": "rgb(0, 128, 0)", # Color verde para el bus
           "labelColor": "rgb(255, 255, 255)",
@@ -175,7 +179,7 @@ def main():
               },
               {
                 "key": "confirmation",
-                "label": "Confirmación",
+                "label": "Confirmation / Confirmación",
                 "value": confirmation
               },
               { 
@@ -183,11 +187,18 @@ def main():
                 "label": "Price / Valor",
                 "value": price
               }
+            ],
+            "backFields": [
+              {
+                "key": "company",
+                "label": "Company / Compañía",
+                "value": company_name
+              }
             ]
           },
           "barcode": {
             "format": "PKBarcodeFormatQR",
-            "message": f"TURBUS SA - {travel_date_time} - {origin.split(' ')[0].upper()}-{destination.split(' ')[0].upper()} - {passenger_name} ({passenger_id}) - Asiento {seat_number}",
+            "message": f"{company_name} - {travel_date_time} - {origin.split(' ')[0].upper()}-{destination.split(' ')[0].upper()} - {passenger_name} ({passenger_id}) - Asiento {seat_number}",
             "messageEncoding": "iso-8859-1"
           }
         }

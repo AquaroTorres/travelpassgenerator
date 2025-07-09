@@ -1,5 +1,7 @@
 import json
 from datetime import datetime, timedelta
+import os
+import subprocess
 
 def ask_input(prompt, default_value):
     """Solicita una entrada al usuario con un valor por defecto."""
@@ -18,14 +20,70 @@ def ask_date(prompt, default_date_str):
         except ValueError:
             print("Fecha inválida. Por favor, usa el formato YYYY-MM-DD.")
 
+def create_pkpass_bundle(json_filename, pkpass_filename, common_images):
+    """
+    Crea el archivo .pkpass a partir del JSON y las imágenes.
+    Requiere que 'zip' esté disponible en el sistema.
+    """
+    print(f"\nEmpaquetando '{json_filename}' en '{pkpass_filename}'...")
+    
+    # Crea un directorio temporal para el contenido del pase
+    temp_dir = "temp_pkpass_content_hotel" # Nombre único para evitar conflictos
+    os.makedirs(temp_dir, exist_ok=True)
+
+    try:
+        # Mueve el JSON al directorio temporal
+        os.rename(json_filename, os.path.join(temp_dir, "pass.json"))
+        
+        # Copia las imágenes al directorio temporal
+        images_to_zip = []
+        for img in common_images:
+            if os.path.exists(img):
+                subprocess.run(["cp", img, temp_dir], check=True)
+                images_to_zip.append(img)
+            else:
+                print(f"Advertencia: La imagen '{img}' no se encontró. El .pkpass podría estar incompleto.")
+        
+        # Crea el archivo .pkpass (es un zip renombrado)
+        current_cwd = os.getcwd() # Guarda el directorio actual
+        os.chdir(temp_dir) # Cambia al directorio temporal para zipear solo los contenidos
+        
+        zip_command = ["zip", "-j", "-r", os.path.join(current_cwd, pkpass_filename), "pass.json"]
+        zip_command.extend(images_to_zip) # Añade solo las imágenes que realmente existían y se copiaron
+        
+        result = subprocess.run(zip_command, capture_output=True, text=True)
+        
+        os.chdir(current_cwd) # Vuelve al directorio original
+
+        if result.returncode == 0:
+            print(f"'{pkpass_filename}' creado exitosamente.")
+        else:
+            print(f"Error al crear '{pkpass_filename}':")
+            print(result.stderr)
+            print("Asegúrate de que 'zip' esté instalado en tu sistema.")
+
+    except FileNotFoundError:
+        print(f"Error: No se pudo encontrar un archivo necesario para el empaquetado (JSON o imagen).")
+    except Exception as e:
+        print(f"Ocurrió un error inesperado al empaquetar el .pkpass: {e}")
+    finally:
+        # Limpia el directorio temporal
+        if os.path.exists(os.path.join(temp_dir, "pass.json")):
+            os.remove(os.path.join(temp_dir, "pass.json"))
+        for img in common_images:
+            if os.path.exists(os.path.join(temp_dir, img)):
+                os.remove(os.path.join(temp_dir, img))
+        if os.path.exists(temp_dir):
+            os.rmdir(temp_dir)
+
 def main():
-    print("--- Generador de JSON para Reserva de Hotel PKPASS (Solo Precio Total) ---")
+    print("--- Generador de PKPASS para Reservas de Hotel ---")
     print("")
 
     # --- Recopilación de Datos ---
 
     # Datos Primarios
-    hotel_name = ask_input("Nombre del Hotel", "Hotel & Villas 7")
+    hotel_name = ask_input("Nombre del Hotel", "Hotel Colonial")
     
     # Usamos la fecha actual como base para los valores por defecto
     today = datetime.now()
@@ -48,7 +106,7 @@ def main():
 
     # Datos Secundarios
     confirmation_number = ask_input("Número de Confirmación de Reserva", "4641175213")
-    guest_name = ask_input("Nombre del Huésped", "Alvaro Torres")
+    guest_name = ask_input("Reserva a nombre de:", "Alvaro Torres")
     
     print("\n--- Tipo de Habitación ---")
     room_options = {
@@ -75,7 +133,6 @@ def main():
     hotel_address = ask_input("Dirección del Hotel", "Calle Siete, 98, Col. Agrícola Pantitlán, Iztacalco, 08100 Ciudad de México, México")
 
     # Datos de los Campos Traseros (BackFields)
-    # Solo preguntamos por el precio total
     total_price = ask_input("Precio Total (ej: USD 68.30, CLP 32.000)", "USD 68.30")
 
     print("\n--- Régimen de Comidas ---")
@@ -183,13 +240,21 @@ def main():
     }
 
     # --- Generación del Archivo JSON ---
-    output_filename = "pass.json"
-    with open(output_filename, "w", encoding="utf-8") as f:
+    json_output_filename = "pass.json"
+    pkpass_output_filename = "reserva_hotel.pkpass"
+    common_images = ["icon.png", "logo.png", "thumbnail.png", "strip.png"] # Imágenes estándar para el pase
+
+    with open(json_output_filename, "w", encoding="utf-8") as f:
         json.dump(pass_data, f, indent=2, ensure_ascii=False)
 
-    print("\n--- JSON generado exitosamente ---")
-    print(f"El archivo '{output_filename}' ha sido creado en el directorio actual.")
-    print("\nzip -r reserva.pkpass pass.json icon.png logo.png")
+    print(f"\n--- JSON '{json_output_filename}' generado exitosamente ---")
+    
+    # Crea el PKPASS
+    create_pkpass_bundle(json_output_filename, pkpass_output_filename, common_images)
+
+    print("\n--- Proceso Completado ---")
+    print(f"El archivo PKPASS '{pkpass_output_filename}' ha sido creado.")
+    print("¡Ya está listo para ser distribuido!")
 
 if __name__ == "__main__":
     main()
