@@ -1,0 +1,71 @@
+{
+  "formatVersion": 1,
+  "passTypeIdentifier": "pass.com.ejemplo.bus", 
+  "serialNumber": "123456",
+  "teamIdentifier": "ABCDE12345",
+  "organizationName": "Empresa de transportes TURBUS SA",
+  "logoText": "TURBUS SA",
+  "foregroundColor": "rgb(255, 255, 255)",
+  "backgroundColor": "rgb(0, 128, 0)",
+  "labelColor": "rgb(255, 255, 255)",
+  "boardingPass": {
+    "transitType": "PKTransitTypeBus",
+    "primaryFields": [
+      {
+        "key": "from",
+        "label": "Origin",
+        "value": "Arica (Chile)"
+      },
+      {
+        "key": "to",
+        "label": "Destination",
+        "value": "Tanca (Perú)"
+      }
+
+    ],
+    "secondaryFields": [
+      {
+        "key": "passenger",
+        "label": "Passenger / Pasajero",
+        "value": "Álvaro Torres Fuchslocher"
+      },
+      {
+        "key": "seat",
+        "label": "Seat / Asiento",
+        "value": "12"
+      },
+      {
+        "key": "identification",
+        "label": "ID / Identificación",
+        "value": "RUN: 12345678-9"
+      },
+      {
+        "key": "date",
+        "label": "Date / Fecha",
+        "value": "21 Sep 2025 18:15"
+      }
+    ],
+    "auxiliaryFields": [
+      {
+        "key": "platform",
+        "label": "Platform / Andén",
+        "value": "12"
+      },
+      {
+        "key": "confirmation",
+        "label": "Confirmación",
+        "value": "4641175213"
+      },
+      {  
+        "key": "price",
+        "label": "Price / Valor",
+        "value": "20 USD / $18.000 CLP"
+      }
+    ]
+  },
+  "barcode": {
+    "format": "PKBarcodeFormatQR",
+    "message": "TURBUS SA - 2025/09/21 18:15 - ARICA-TACNA - Álvaro Torres Fuchslocher (RUN: 12345678-9) - Asiento 12",
+    "messageEncoding": "iso-8859-1"
+  }
+}

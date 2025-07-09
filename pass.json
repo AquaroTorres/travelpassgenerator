@@ -1,0 +1,88 @@
+{
+  "formatVersion": 1,
+  "passTypeIdentifier": "pass.com.tudominio.reservahotel",
+  "teamIdentifier": "ABCDEFGHIJ",
+  "webServiceURL": "https://example.com/passes/",
+  "authenticationToken": "vxwxd7J8AlNNFPS8k0a0FfLPtAecvmprwruOQCrpF4uSMsmiK6qxSDFs",
+  "organizationName": "Booking.com",
+  "localizedDescription": "Reserva de Hotel",
+  "logoText": "Booking.com",
+  "foregroundColor": "rgb(255, 255, 255)",
+  "backgroundColor": "rgb(0, 75, 150)",
+  "labelColor": "rgb(200, 230, 255)",
+  "generic": {
+    "primaryFields": [
+      {
+        "key": "hotelName",
+        "label": "Hotel",
+        "value": "Hotel & Villas 7"
+      },
+      {
+        "key": "checkInDate",
+        "label": "Check-in",
+        "value": "Wed, 16 Jul 2025"
+      },
+      {
+        "key": "checkOutDate",
+        "label": "Check-out",
+        "value": "Thu, 17 Jul 2025"
+      }
+    ],
+    "secondaryFields": [
+      {
+        "key": "confirmation",
+        "label": "Confirmación",
+        "value": "4641175213"
+      },
+      {
+        "key": "guestName",
+        "label": "Huésped",
+        "value": "Alvaro Torres"
+      },
+      {
+        "key": "roomType",
+        "label": "Tu Reserva",
+        "value": "1 noche, Habitación Single"
+      },
+      {
+        "key": "guests",
+        "label": "Reservaste para",
+        "value": "2"
+      }
+    ],
+    "auxiliaryFields": [
+      {
+        "key": "address",
+        "label": "Ubicación",
+        "value": "Calle Siete, 98, Col. Agrícola Pantitlán, Iztacalco, 08100 Ciudad de México, México"
+      }
+    ],
+    "backFields": [
+      {
+        "key": "cancellationPolicyTitle",
+        "label": "Política de Cancelación",
+        "value": "Ten en cuenta que si cancelas, haces algún cambio o no te presentas, se te cobrará el precio total de la reserva."
+      },
+      {
+        "key": "cancellationCharges",
+        "label": "Cargos de Cancelación",
+        "value": "Esta reserva no es reembolsable. No se pueden cambiar las fechas de estancia."
+      },
+      {
+        "key": "totalPrice",
+        "label": "Precio Total",
+        "value": "USD 68.30"
+      },
+      {
+        "key": "breakfast",
+        "label": "Régimen de comidas",
+        "value": "El precio de esta habitación no incluye desayuno ni servicio de comidas."
+      }
+    ]
+  },
+  "barcode": {
+    "format": "PKBarcodeFormatQR",
+    "message": "4641175213",
+    "messageEncoding": "iso-8859-1"
+  }
+}
